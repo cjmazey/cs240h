@@ -19,3 +19,9 @@ outcome Scissors Paper = Win
 outcome us them
   | us == them = Tie
   | otherwise = Lose
+
+parseMove :: String -> Maybe Move
+parseMove s =
+  case reads s of
+    [(m,"")] -> Just m
+    _ -> Nothing
