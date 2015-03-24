@@ -1,5 +1,7 @@
 module Basics.RockPaperScissors where
 
+import Data.Char (isSpace)
+
 data Move
   = Rock
   | Paper
@@ -23,5 +25,6 @@ outcome us them
 parseMove :: String -> Maybe Move
 parseMove s =
   case reads s of
-    [(m,"")] -> Just m
+    [(m,t)]
+      | all isSpace t -> Just m
     _ -> Nothing
