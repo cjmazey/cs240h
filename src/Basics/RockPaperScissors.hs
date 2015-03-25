@@ -1,6 +1,7 @@
 module Basics.RockPaperScissors where
 
 import Data.Char (isSpace)
+import Network
 import System.IO
 
 data Move
@@ -33,11 +34,21 @@ parseMove s =
 withTty :: (Handle -> IO r) -> IO r
 withTty = withFile "/dev/tty" ReadWriteMode
 
+withClient :: PortID -> (Handle -> IO a) -> IO a
+withClient listenPort fn =
+  do s <- listenOn listenPort
+     (h,host,port) <- accept s
+     putStrLn $ "Connection from host " ++ host ++ " port " ++ show port
+     sClose s -- Only accept one client
+     a <- fn h
+     hClose h
+     return a
+
 computerVsUser :: Move -> Handle -> IO ()
 computerVsUser m h =
   do hPutStrLn h $
        "Please enter one of " ++
-       show ([minBound..] :: [Move])
+       show ([minBound ..] :: [Move])
      i <- hGetLine h
      case parseMove i of
        Nothing -> computerVsUser m h
