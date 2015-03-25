@@ -1,6 +1,7 @@
 module Basics.RockPaperScissors where
 
 import Data.Char (isSpace)
+import System.IO
 
 data Move
   = Rock
@@ -28,3 +29,19 @@ parseMove s =
     [(m,t)]
       | all isSpace t -> Just m
     _ -> Nothing
+
+withTty :: (Handle -> IO r) -> IO r
+withTty = withFile "/dev/tty" ReadWriteMode
+
+computerVsUser :: Move -> Handle -> IO ()
+computerVsUser m h =
+  do hPutStrLn h $
+       "Please enter one of " ++
+       show ([minBound..] :: [Move])
+     i <- hGetLine h
+     case parseMove i of
+       Nothing -> computerVsUser m h
+       Just r ->
+         hPutStrLn h $
+         "You " ++
+         show (outcome r m)
